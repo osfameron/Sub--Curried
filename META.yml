@@ -1,0 +1,28 @@
+---
+abstract: 'Currying of subroutines via a new ''curry' declarator'
+author:
+  - osfameron
+build_requires:
+  Test::Exception: 0.00
+  Test::More: 0.42
+  Test::NoWarnings: 0.00
+distribution_type: module
+generated_by: 'Module::Install version 0.77'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Sub-Curried
+no_index:
+  directory:
+    - inc
+    - t
+    - examples
+requires:
+  Carp: 0.00
+  Devel::Declare: 0.002000
+  Scope::Guard: 0.00
+  Sub::Name: 0.00
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.06

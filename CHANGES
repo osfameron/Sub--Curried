@@ -1,0 +1,14 @@
+2008-09-24
+    0.06    Corrected SYNOPSIS (Caelum++, dada++)
+            Added test for curry with no params (not that this makes sense!) (dada++)
+2008-09-22
+    0.05 Updated to D::D 0.002000, with new internals and hack to avoid final semicolon!
+
+2008-07-26
+    0.04 corrected doc typo (ilmari++)
+         added examples/cycle.pl
+    0.03 Corrected bug in trim
+
+2008-07-24
+    0.02 correction to SYNOPSIS
+    0.01 first public release
