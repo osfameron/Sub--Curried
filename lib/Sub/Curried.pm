@@ -23,14 +23,13 @@ Sub::Curried - Currying of subroutines via a new 'curry' declarator
 =head1 DESCRIPTION
 
 Currying and Partial Application come from the heady world of functional
-programming, but are actually useful techniques.  Partial Application is
-used to progressively specialise a subroutine, by pre-binding some of the
-arguments.
+programming, but are actually useful techniques.  Partial Application is used
+to progressively specialise a subroutine, by pre-binding some of the arguments.
 
-Partial application is the generic term, that also encompasses the concept
-of plugging in "holes" in arguments at arbitrary positions.  Currying is
-(I think) more specifically the application of arguments progressively from
-left to right until you have enough of them.
+Partial application is the generic term, that also encompasses the concept of
+plugging in "holes" in arguments at arbitrary positions.  Currying is more
+specifically the application of arguments progressively from left to right
+until you have enough of them.
 
 =cut
 
@@ -40,9 +39,9 @@ use Carp 'croak';
 
 use Devel::Declare;
 use Sub::Name;
-use Scope::Guard;
+use B::Hooks::EndOfScope;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 # cargo culted
 sub import {
@@ -189,17 +188,14 @@ sub get_decl {
     sub scope_injector_call {
         my $pkg  = __PACKAGE__;
         my $what = shift || ';';
-        return " BEGIN { ${pkg}::inject_scope ('$what') }; ";
+        return " BEGIN { B::Hooks::EndOfScope::on_scope_end { ${pkg}::add_at_end_of_scope('$what') } }; ";
     }
-    sub inject_scope {
+    sub add_at_end_of_scope {
         my $what = shift || ';';
-        $^H |= 0x120000;
-        $^H{DD_METHODHANDLERS} = Scope::Guard->new(sub {
-            my $linestr = Devel::Declare::get_linestr;
-            my $offset = Devel::Declare::get_linestr_offset;
-            substr($linestr, $offset, 0) = $what;
-            Devel::Declare::set_linestr($linestr);
-        });
+        my $linestr = Devel::Declare::get_linestr;
+        my $offset = Devel::Declare::get_linestr_offset;
+        substr($linestr, $offset, 0) = $what;
+        Devel::Declare::set_linestr($linestr);
     }
 }
 
