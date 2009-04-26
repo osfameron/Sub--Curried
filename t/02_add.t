@@ -2,7 +2,7 @@
 use strict; use warnings;
 use Data::Dumper;
 
-use Test::More tests=>10;
+use Test::More tests=>6;
 use Test::Exception;
 
 use Sub::Curried;
@@ -22,11 +22,3 @@ is( add_n_to(8)->(3),11, "chained curried call");
 throws_ok {
     add_n_to(1,2,3);
     } qr/add_n_to, expected 2 args but got 3/;
-
-curry three ($one,$two,$three) { }
-
-throws_ok { three(1,2,3,4) }    qr/three, expected 3 args but got 4/;
-throws_ok { three(1)->(2,3,4) } qr/three, expected 2 args but got 3/;
-throws_ok { three(1,2)->(3,4) } qr/three, expected 1 args but got 2/;
-throws_ok { three(1,2,3)->(4) } qr/Can't use string \("3"\) as a subroutine ref/;
-

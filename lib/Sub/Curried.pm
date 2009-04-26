@@ -34,6 +34,7 @@ until you have enough of them.
 =cut
 
 package Sub::Curried;
+use base 'Sub::Composable';
 use strict; use warnings;
 use Carp 'croak';
 
@@ -132,6 +133,11 @@ sub get_decl {
         }
     }
 
+    sub check_args {
+        my ($name, $exp, $actual) = @_;
+        die "$name, expected $exp args but got $actual" if $actual>$exp;
+    }
+
     sub parser {
         local ($Declarator, $Offset) = @_;
         skip_declarator;
@@ -150,7 +156,8 @@ sub get_decl {
         my $exp_check = sub {
             my $exp= scalar @decl;
             sub {
-                my $ret = qq[ die "$name, expected $exp args but got ".\@_ if \@_>$exp; ];
+                my $name = $name ? qq('$name') : 'undef';
+                my $ret = qq[ Sub::Curried::check_args($name,$exp,scalar \@_); ];
                 $exp--; return $ret;
               }
           }->();
