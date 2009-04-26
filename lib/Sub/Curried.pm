@@ -140,7 +140,6 @@ sub get_decl {
         my $proto = strip_proto;
 
         my @decl = get_decl($proto);
-        my $exp= scalar @decl;
 
         # We nest each layer of currying in its own sub.
         # if we were passed more than one argument, then we call more than one layer.
@@ -149,11 +148,18 @@ sub get_decl {
 
         my $si = scope_injector_call(', "Sub::Curried"; $f=$f->($_) for @_; $f}');
 
-        my $inject = "my \$exp = $exp; " 
-            . qq[ die ("Expected $exp args but got ".\@_) if \@_>$exp; \$exp-=\@_; ]
-            . join qq[ my \$f = bless sub { $si; ],
+        my $exp_check = sub {
+            my $exp= scalar @decl;
+            sub {
+                my $ret = qq[ die "$name, expected $exp args but got ".\@_ if \@_>$exp; ];
+                $exp--; return $ret;
+              }
+          }->();
+            
+        my $inject = 
+                join qq[ my \$f = bless sub { $si; ],
                 map { 
-                    mk_my_var($_)
+                    $exp_check->() . mk_my_var($_);
                 } @decl;
 
         if (defined $name) {
