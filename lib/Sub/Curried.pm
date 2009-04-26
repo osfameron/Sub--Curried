@@ -40,6 +40,7 @@ use Carp 'croak';
 
 use Devel::Declare;
 use Sub::Name;
+use Sub::Current;
 use B::Hooks::EndOfScope;
 
 our $VERSION = '0.07';
@@ -162,7 +163,7 @@ sub get_decl {
               }
           }->();
             
-        my $inject = 
+        my $inject = 'return Sub::Current::ROUTINE unless @_;' .
                 join qq[ my \$f = bless sub { $si; ],
                 map { 
                     $exp_check->() . mk_my_var($_);
