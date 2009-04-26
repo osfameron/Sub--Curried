@@ -1,6 +1,8 @@
 2009-04-26
     0.07    Changed codegen to monadic style
+            This requires change to allow alias-on-zero-args, using Sub::Current
             Moved to B::Hooks::EndOfScope
+            Added Sub::Composable
 
 2008-09-24
     0.06    Corrected SYNOPSIS (Caelum++, dada++)

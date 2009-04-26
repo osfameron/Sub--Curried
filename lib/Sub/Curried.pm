@@ -163,8 +163,8 @@ sub get_decl {
               }
           }->();
             
-        my $inject = 'return Sub::Current::ROUTINE unless @_;' .
-                join qq[ my \$f = bless sub { $si; ],
+        my $inject = (@decl ? 'return Sub::Current::ROUTINE unless @_;' : '') 
+              . join qq[ my \$f = bless sub { $si; ],
                 map { 
                     $exp_check->() . mk_my_var($_);
                 } @decl;
