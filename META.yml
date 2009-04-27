@@ -19,10 +19,11 @@ no_index:
     - t
     - examples
 requires:
+  B::Hooks::EndOfScope: 0.00
   Carp: 0.00
   Devel::Declare: 0.002000
-  Scope::Guard: 0.00
+  Sub::Current: 0.00
   Sub::Name: 0.00
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.06
+version: 0.07

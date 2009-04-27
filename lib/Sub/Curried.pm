@@ -42,6 +42,7 @@ use Devel::Declare;
 use Sub::Name;
 use Sub::Current;
 use B::Hooks::EndOfScope;
+use Devel::BeginLift;
 
 our $VERSION = '0.07';
 
@@ -186,6 +187,7 @@ sub get_decl {
                 no strict 'refs';
                 *{$name} = subname $name => $f;
             }
+            Devel::BeginLift->setup_for_cv($f);
             $f;
           };
         shadow($installer);
