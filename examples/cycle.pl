@@ -4,6 +4,10 @@ use Sub::Curried;
 
 # After a question in #moose by Debolaz
 
+sub take;
+sub mult;
+sub cycle;
+
 # use feature 'say'; # I can't get Devel::Declare to install on 5.10, bah
 sub say {
     if (@_) {
@@ -25,7 +29,7 @@ curry cycle (@list) {
 }
 
 # we can't just use (*) like in Haskell :-)
-curry times ($x,$y) { $x * $y }
+curry mult ($x,$y) { $x * $y }
 
 curry scanl ($fn, $start, $it) {
     my $curr = $start;
@@ -40,4 +44,4 @@ curry take ($count, $it) {
     return map { $it->() } 1..$count;
 }
 
-say for take 12 => scanl(times)->(10 => cycle [2.5, 2, 2] );
+say for take 12 => scanl(mult)->(10 => cycle [2.5, 2, 2] );
