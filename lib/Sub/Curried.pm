@@ -44,7 +44,7 @@ use Sub::Current;
 use B::Hooks::EndOfScope;
 use Devel::BeginLift;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 # cargo culted
 sub import {
@@ -153,7 +153,7 @@ sub get_decl {
         # We use the closing brace '}' trick as per monads, but also place the calling
         # logic here.
 
-        my $si = scope_injector_call(', "Sub::Curried"; $f=$f->($_) for @_; $f}');
+        my $si = scope_injector_call(', "Sub::Curried"; ($f,@r)=$f->($_) for @_; wantarray ? ($f,@r) : $f}');
 
         my $exp_check = sub {
             my $exp= scalar @decl;
@@ -165,7 +165,7 @@ sub get_decl {
           }->();
             
         my $inject = (@decl ? 'return Sub::Current::ROUTINE unless @_;' : '') 
-              . join qq[ my \$f = bless sub { $si; ],
+              . join qq[ my \@r; my \$f = bless sub { $si; ],
                 map { 
                     $exp_check->() . mk_my_var($_);
                 } @decl;
@@ -186,10 +186,12 @@ sub get_decl {
             if ($name) {
                 no strict 'refs';
                 *{$name} = subname $name => $f;
+                ()
+            } else {
+                $f;
             }
-            Devel::BeginLift->setup_for_cv($f);
-            $f;
           };
+        Devel::BeginLift->setup_for_cv($installer) if $name;
         shadow($installer);
     }
 

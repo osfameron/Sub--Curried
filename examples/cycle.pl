@@ -2,21 +2,19 @@
 use strict; use warnings;
 use Sub::Curried;
 
-# After a question in #moose by Debolaz
+=head1 Cycle Example
 
-sub take;
-sub mult;
-sub cycle;
+This is documented in detail at L<http://greenokapi.net/blog/2008/07/27/102550-sequence-fun/>
 
-# use feature 'say'; # I can't get Devel::Declare to install on 5.10, bah
-sub say {
-    if (@_) {
-        print for @_;
-    } else {
-        print;
-    }
-    print "\n";
-}
+Debolaz asked a question in #moose, how to get:
+
+ a list of numbers like 10,25,50,100,250,500,1000,etc without tracking any
+ other state than the number itself
+
+=cut
+
+use feature 'say'; # Perl >= 5.10
+# use Perl6::Say;  # Perl <  5.10
 
 # We want to be able to declare an infinite list of repeated values, for example
 # (1,2,3,1,2,3,1,2,3) or in this case a list of functions (x2.5, x2, x2, ...)
@@ -28,9 +26,10 @@ curry cycle (@list) {
         };
 }
 
-# we can't just use (*) like in Haskell :-)
-curry mult ($x,$y) { $x * $y }
+# Or use Sub::Section's  op(*)
+curry times ($x,$y) { $x * $y }
 
+# like a fold, but returning intermediate values
 curry scanl ($fn, $start, $it) {
     my $curr = $start;
     return sub {
@@ -40,8 +39,14 @@ curry scanl ($fn, $start, $it) {
     };
 }
 
+# convert an infinite list into a perl array
 curry take ($count, $it) {
     return map { $it->() } 1..$count;
 }
 
-say for take 12 => scanl(mult)->(10 => cycle [2.5, 2, 2] );
+# and finally.. the example in its glory!
+say for take 12 => 
+    scanl(times)->(
+            10,
+            cycle [2.5, 2, 2] 
+       );

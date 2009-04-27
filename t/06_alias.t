@@ -8,7 +8,7 @@ use Sub::Curried;
 
 curry add ($x, $y) { $x + $y }
 
-my $add = add(); # should be able to do 'add' simply?
+my $add = add;
 
 is $add->(1)->(2), 3, 'Simple test starting with aliased "add" function';
 is $add->(1, 2),   3, 'Simple test starting with aliased "add" function';
