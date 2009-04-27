@@ -1,0 +1,5 @@
+.git
+blib
+cover_db
+MANIFEST.bak
+Makefile
