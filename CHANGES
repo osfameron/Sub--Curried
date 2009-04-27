@@ -1,3 +1,10 @@
+2009-04-27
+    0.08    Documentation.
+            Fixed examples/cycle.pl
+            Lifting named curries (rafl++)
+            Fixed bug with multiple return values
+            More tests.
+
 2009-04-26
     0.07    Changed codegen to monadic style
             This requires change to allow alias-on-zero-args, using Sub::Current

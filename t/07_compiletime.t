@@ -18,10 +18,6 @@ SANITY: {
               'world',
               'Hello world',
               'Called with no parens, predeclared';
-}
-
-FAIL: {
-    local $TODO = "Bareword fail";
 
     test_eval 'curry greet3 ($what) { "Hello $what" }; greet3',
               'world',

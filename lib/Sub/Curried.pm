@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 =head1 NAME
 
 Sub::Curried - Currying of subroutines via a new 'curry' declarator
@@ -30,6 +28,69 @@ Partial application is the generic term, that also encompasses the concept of
 plugging in "holes" in arguments at arbitrary positions.  Currying is more
 specifically the application of arguments progressively from left to right
 until you have enough of them.
+
+=head1 USAGE
+
+Define a curried subroutine using the C<curry> keyword.  You should list the
+arguments to the subroutine in parentheses.  This isn't a sophisticated signature
+parser, just a common separated list of scalars (or C<@array> or C<%hash> arguments,
+which will be returned as a I<reference>).
+
+    curry greet ($greeting, $greetee) {
+        return "$greeting $greetee";
+    }
+
+    my $hello = greet("Hello");
+    say $hello->("World"); # Hello World
+
+=head2 Currying
+
+Currying applies the arguments from left to right, returning a more specialised function
+as it goes until all the arguments are ready, at which point the sub returns its value.
+
+    curry three ($one,$two,$three) {
+        return $one + $two * $three
+    }
+
+    three(1,2,3)  # normal call - returns 7
+
+    three(1)      # a new subroutine, with $one bound to the number 1
+        ->(2,3)   # call the new sub with these arguments
+
+    three(1)->(2)->(3) # You could call the curried sub like this, 
+                       # instead of commas (1,2,3)
+
+What about calling with I<no> arguments?  By extension that would return a function exactly
+like the original one... but with I<no> arguments prebound (i.e. it's an alias!)
+
+    my $fn = three;   # same as my $fn = \&three;
+
+=head2 Anonymous curries
+
+Just like you can have anonymous subs, you can have anonymous curried subs:
+
+    my $greet = curry ($greeting, $greetee) { ... }
+
+=head2 Composition
+
+Curried subroutines are I<composable>.  This means that we can create a new
+subroutine that takes the result of the second subroutine as the input of the
+first.
+
+Let's say we wanted to expand our greeting to add some punctuation at the end:
+
+    curry append  ($r, $l) { $l . $r }
+    curry prepend ($l, $r) { $l . $r }
+
+    my $ciao = append('!') << prepend('Ciao ');
+    say $ciao->('Bella'); # Ciao Bella!
+
+How does this work?  Follow the pipeline in the direction of the E<lt>E<lt>...
+First we prepend 'Ciao ' to get 'Ciao Bella', then we pass that to the curry that
+appends '!'.
+
+The overloaded syntax is provided by C<Sub::Composable> which is distributed with 
+this module as a base class.
 
 =cut
 

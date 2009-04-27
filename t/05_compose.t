@@ -2,15 +2,18 @@
 use strict; use warnings;
 use Data::Dumper;
 
-use Test::More tests=>2;
+use Test::More tests=>3;
 
 use Sub::Curried;
 
-curry greet  ($pre, $what) { "$pre $what!" }
-curry concat ($l, $r)      { $l . $r }
+curry append  ($r, $l) { $l . $r }
+curry prepend ($l, $r) { $l . $r }
 
-my $fn1 = greet('Hello') << concat('Wor');
-is $fn1->('ld'), 'Hello World!', 'Simple composition';
+my $ciao = append('!') << prepend('Ciao ');
+is $ciao->('Bella'), 'Ciao Bella!', 'Simple composition';
 
-my $fn2 = greet('Hi') << curry ($l, $r) { $l . $r }->('M');
-is $fn2->('um'), 'Hi Mum!', 'Composition including an anonymous function';
+my $fn2 = prepend('Hi ') << curry ($l, $r) { $l . $r }->('M');
+is $fn2->('um'), 'Hi Mum', 'Composition including an anonymous function';
+
+my $fn3 = prepend('Hi ') << curry ($l, $r) { $l . $r };
+is $fn3->('M', 'um'), 'Hi Mum', 'Composition including an anonymous function';
