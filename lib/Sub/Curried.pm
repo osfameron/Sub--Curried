@@ -321,6 +321,8 @@ This module is distributed under the same terms and conditions as Perl itself.
 
 Please submit bugs to RT or shout at me on IRC (osfameron on #london.pm on irc.perl.org)
 
+A git repo is available at L<http://github.com/osfameron/Sub--Curried/tree/master>
+
 =cut
 
 1;
