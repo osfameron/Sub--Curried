@@ -46,7 +46,7 @@ curry take ($count, $it) {
 
 # and finally.. the example in its glory!
 say for take 12 => 
-    scanl(times)->(
+    (scanl times)->(
             10,
             cycle [2.5, 2, 2] 
        );

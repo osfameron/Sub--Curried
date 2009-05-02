@@ -105,7 +105,7 @@ use Sub::Current;
 use B::Hooks::EndOfScope;
 use Devel::BeginLift;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 # cargo culted
 sub import {
