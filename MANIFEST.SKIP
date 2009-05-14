@@ -5,3 +5,4 @@ MANIFEST.bak
 MANIFEST.SKIP
 Makefile$
 Makefile.old
+.tar.gz
