@@ -2,5 +2,6 @@
 blib
 cover_db
 MANIFEST.bak
+MANIFEST.SKIP
 Makefile$
 Makefile.old

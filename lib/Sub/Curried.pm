@@ -1,6 +1,6 @@
 =head1 NAME
 
-Sub::Curried - Currying of subroutines via a new 'curry' declarator
+Sub::Curried - automatically curried subroutines
 
 =head1 SYNOPSIS
 

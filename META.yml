@@ -27,4 +27,4 @@ requires:
   Sub::Name: 0.00
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.08
+version: 0.09

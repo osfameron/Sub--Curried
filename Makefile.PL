@@ -21,4 +21,3 @@ build_requires 'Test::NoWarnings' => '0.00';
 
 auto_install;
 WriteAll;
-
