@@ -105,7 +105,7 @@ use Sub::Current;
 use B::Hooks::EndOfScope;
 use Devel::BeginLift;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 # cargo culted
 sub import {
@@ -214,8 +214,6 @@ sub get_decl {
         # We use the closing brace '}' trick as per monads, but also place the calling
         # logic here.
 
-        my $si = scope_injector_call(', "Sub::Curried"; ($f,@r)=$f->($_) for @_; wantarray ? ($f,@r) : $f}');
-
         my $exp_check = sub {
             my $exp= scalar @decl;
             sub {
@@ -224,23 +222,7 @@ sub get_decl {
                 $exp--; return $ret;
               }
           }->();
-            
-        my $inject = (@decl ? 'return Sub::Current::ROUTINE unless @_;' : '') 
-              . join qq[ my \@r; my \$f = bless sub { $si; ],
-                map { 
-                    $exp_check->() . mk_my_var($_);
-                } @decl;
 
-        if (defined $name) {
-            $inject = scope_injector_call().$inject;
-        }
-
-        inject_if_block($inject);
-
-        if (defined $name) {
-            $name = join('::', Devel::Declare::get_curstash_name(), $name)
-              unless ($name =~ /::/);
-        }
         my $installer = sub (&) {
             my $f = shift;
             bless $f, __PACKAGE__;
@@ -252,7 +234,27 @@ sub get_decl {
                 $f;
             }
           };
-        Devel::BeginLift->setup_for_cv($installer) if $name;
+        my $si = scope_injector_call(', "Sub::Curried"; ($f,@r)=$f->($_) for @_; wantarray ? ($f,@r) : $f}');
+            
+        my $inject = (@decl ? 'return Sub::Current::ROUTINE unless @_;' : '') 
+              . join qq[ my \@r; my \$f = bless sub { $si; ],
+                map { 
+                    $exp_check->() . mk_my_var($_);
+                } @decl;
+
+        if (defined $name) {
+            my $lift_id = Devel::BeginLift->setup_for_cv($installer) if $name;
+
+            $inject = scope_injector_call(";Devel::BeginLift->teardown_for_cv($lift_id);").$inject;
+        }
+
+        inject_if_block($inject);
+
+        if (defined $name) {
+            $name = join('::', Devel::Declare::get_curstash_name(), $name)
+              unless ($name =~ /::/);
+        }
+
         shadow($installer);
     }
 

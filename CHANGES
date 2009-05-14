@@ -1,3 +1,8 @@
+2009-05-14
+    0.10    Fix for 5.8.8 (BeginLift'd CV needs to be teardown_for_cv'd on end of scope
+              otherwise CV may be reused, causing subsequent subs to be erroneously
+              lifted)
+
 2009-05-02
     0.09    Fix dist
 

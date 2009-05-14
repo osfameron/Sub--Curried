@@ -1,20 +1,22 @@
 #!/usr/bin/perl
 use strict; use warnings;
 
-use Test::More tests=>5;
-use Test::Exception;
-use Test::NoWarnings;
+use Test::More tests=>4;
 
 use Sub::Curried;
 
-curry noparam () {
-    return "RARR";
+curry empty_sig () {
+    return "EMPTY";
 }
-curry noparam2 {
-    return "RARR";
+curry no_sig {
+    return "NO_SIG";
 }
 
-isa_ok (\&noparam,  'Sub::Curried');
-isa_ok (\&noparam2, 'Sub::Curried');
-is (noparam(),  'RARR', "No-arg curried sub executes on... no args");
-is (noparam2(), 'RARR', "No-arg curried sub executes on... no args");
+isa_ok (\&empty_sig, 'Sub::Curried');
+isa_ok (\&no_sig,    'Sub::Curried');
+
+my $n1 = empty_sig();
+is $n1, 'EMPTY', "No-arg curried sub executes on... no args";
+
+my $n2 = no_sig();
+is $n2, 'NO_SIG', "No-arg curried sub executes on... no args";
