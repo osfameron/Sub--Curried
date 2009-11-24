@@ -1,3 +1,6 @@
+2009-11-24
+    0.11    Updated M::I to 0.91 (via rafl++)
+
 2009-05-14
     0.10    Fix for 5.8.8 (BeginLift'd CV needs to be teardown_for_cv'd on end of scope
               otherwise CV may be reused, causing subsequent subs to be erroneously
