@@ -87,7 +87,15 @@ Let's say we wanted to expand our greeting to add some punctuation at the end:
 
 How does this work?  Follow the pipeline in the direction of the E<lt>E<lt>...
 First we prepend 'Ciao ' to get 'Ciao Bella', then we pass that to the curry that
-appends '!'.
+appends '!'.  We can also write them in the opposite order, to match evaluation
+order, by reversing the operator:
+
+    my $ciao = prepend('Ciao ') >> append('!');
+    say $ciao->('Bella'); # Ciao Bella!
+
+Finally, we can create a shell-like pipeline:
+
+    say 'Bella' | prepend('Ciao ') | append('!'); # Ciao Bella!
 
 The overloaded syntax is provided by C<Sub::Composable> which is distributed with 
 this module as a base class.
