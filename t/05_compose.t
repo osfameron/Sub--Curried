@@ -18,7 +18,7 @@ is $fn2->('um'), 'Hi Mum', 'Composition including an anonymous function';
 my $fn3 = prepend('Hi ') << curry ($l, $r) { $l . $r };
 is $fn3->('M', 'um'), 'Hi Mum', 'Composition including an anonymous function';
 
-my $fn4 = sub { 'unblessed '.$_[0] } << prepend('blessed ');
+my $fn4 = sub { 'un'.$_[0] } << prepend('blessed ');
 is $fn4->('function'), 'unblessed function', 'Composition including a non-composable function';
 
 my $fn5 = prepend('Ciao ') >> append('!');
