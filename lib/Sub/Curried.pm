@@ -113,7 +113,7 @@ use Sub::Current;
 use B::Hooks::EndOfScope;
 use Devel::BeginLift;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 # cargo culted
 sub import {
@@ -325,7 +325,21 @@ to declare how many arguments it's expecting)
 
 =head1 AUTHOR and LICENSE
 
- (c)2008-2009 osfameron@cpan.org
+ (c)2008-2013 osfameron@cpan.org
+
+=head2 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Florian (rafl) Ragwitz
+
+=item *
+
+Paul (prj) Jarc
+
+=back
 
 This module is distributed under the same terms and conditions as Perl itself.
 
