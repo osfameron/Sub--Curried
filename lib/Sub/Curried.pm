@@ -100,6 +100,46 @@ Finally, we can create a shell-like pipeline:
 The overloaded syntax is provided by C<Sub::Composable> which is distributed with 
 this module as a base class.
 
+=head2 Argument aliasing
+
+When all the arguments are supplied and the function body is executed, the
+arguments values are available in both the named parameters and the C<@_>
+array.  Just as in a normal subroutine call, the elements of C<@_> (but
+I<not> the named parameters) are aliased to the variables supplied by the
+caller, so you can use pass-by-reference semantics.
+
+    curry set ($a, $b) {
+      foreach my $arg (@_) { $arg = 1; } # affects the caller
+      $a = $b = 2;                       # doesn't affect the caller
+    }
+    my ($x, $y) = (0, 0);
+    set($x)->($y); # $x == 1, $y == 1
+
+=head2 Stack traces
+
+The innermost stack frame has the function name you defined, with all the
+accumulated arguments.  Any intermediate stack frames have the same or
+similar function names; currently there is a C<__curried> suffix, but that
+may change in the future.  Currently there is only one intermediate stack
+frame, showing just the arguments that were passed in the final call that
+reached the required number of arguments, but that may change in the future.
+If you supply all the arguments in one call, there are no intermediate stack
+frames.
+
+    use Carp 'confess';
+    curry func ($a, $b, $c, $d) {
+      confess('ERROR MESSAGE');
+    }
+    sub call {
+      func(1)->(2)->(3, 4);
+    }
+    call();
+
+    ERROR MESSAGE at script.pl line 3
+           main::func(1, 2, 3, 4) called at .../Sub/Curried.pm line 202
+           main::func__curried(3, 4) called at script.pl line 6
+           main::call() called at script.pl line 8
+
 =cut
 
 package Sub::Curried;
@@ -109,7 +149,7 @@ use Carp 'croak';
 
 use Devel::Declare;
 use Sub::Name;
-use Sub::Current;
+use Sub::Identify 'sub_fullname';
 use B::Hooks::EndOfScope;
 use Devel::BeginLift;
 
@@ -131,13 +171,14 @@ sub import {
 }
 
 sub mk_my_var {
-    my ($name) = @_;
-    my ($vsigil, $vname) = /^([\$%@])(\w+)$/
+    my ($name, $i) = @_;
+    my ($vsigil, $vname) = ($name=~/^([\$%@])(\w+)$/)
         or die "Bad sigil: $_!"; # not croak, this is in compilation phase
-    my $shift = $vsigil eq '$' ?
-        'shift'
-      : "${vsigil}{+shift}";
-    return qq[my $vsigil$vname = $shift;];
+    my $arg = '$_['.$i.']';
+    if ($vsigil ne '$') {
+      $arg = $vsigil.'{'.$arg.'}';
+    }
+    return qq[my $vsigil$vname = $arg;];
 }
 
 sub trim {
@@ -148,6 +189,24 @@ sub trim {
 sub get_decl {
     my $decl = shift || '';
     map trim, split /,/ => $decl;
+}
+
+sub curried {
+    my ($expected_args, $func) = @_;
+    my $name = sub_fullname($func).'__curried';
+    my $wrapper;
+    $wrapper = sub {
+        if (@_>$expected_args) { die($name.', expected '.$expected_args.' args but got '.@_); }
+        if (@_==$expected_args) { goto &$func; }
+        my $args = \@_;
+        my $curried = sub { $wrapper->(@$args, @_) };
+        bless($curried, __PACKAGE__);
+        subname($name, $curried);
+        return $curried;
+    };
+    bless($wrapper, __PACKAGE__);
+    subname($name, $wrapper);
+    $wrapper;
 }
 
 # Stolen from Devel::Declare's t/method-no-semi.t / Method::Signatures
@@ -204,11 +263,6 @@ sub get_decl {
         }
     }
 
-    sub check_args {
-        my ($name, $exp, $actual) = @_;
-        die "$name, expected $exp args but got $actual" if $actual>$exp;
-    }
-
     sub parser {
         local ($Declarator, $Offset) = @_;
         skip_declarator;
@@ -217,26 +271,16 @@ sub get_decl {
 
         my @decl = get_decl($proto);
 
-        # We nest each layer of currying in its own sub.
-        # if we were passed more than one argument, then we call more than one layer.
-        # We use the closing brace '}' trick as per monads, but also place the calling
-        # logic here.
-
-        my $exp_check = sub {
-            my $exp= scalar @decl;
-            sub {
-                my $name = $name ? qq('$name') : 'undef';
-                my $ret = qq[ Sub::Curried::check_args($name,$exp,scalar \@_); ];
-                $exp--; return $ret;
-              }
-          }->();
-
         my $installer = sub (&) {
             my $f = shift;
-            bless $f, __PACKAGE__;
-            if ($name) {
+            if (defined($name) and $name ne '') {
+                subname($name, $f);
+            }
+            $f = curried(scalar(@decl), $f);
+
+            if (defined($name) and $name ne '') {
                 no strict 'refs';
-                *{$name} = subname $name => $f;
+                *{$name} = $f;
                 ()
             } else {
                 $f;
@@ -244,11 +288,7 @@ sub get_decl {
           };
         my $si = scope_injector_call(', "Sub::Curried"; ($f,@r)=$f->($_) for @_; wantarray ? ($f,@r) : $f}');
             
-        my $inject = (@decl ? 'return Sub::Current::ROUTINE unless @_;' : '') 
-              . join qq[ my \@r; my \$f = bless sub { $si; ],
-                map { 
-                    $exp_check->() . mk_my_var($_);
-                } @decl;
+        my $inject = join('', map(mk_my_var($decl[$_], $_), 0..$#decl));
 
         if (defined $name) {
             my $lift_id = Devel::BeginLift->setup_for_cv($installer) if $name;

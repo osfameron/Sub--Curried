@@ -21,4 +21,4 @@ is( add_n_to(8)->(3),11, "chained curried call");
 
 throws_ok {
     add_n_to(1,2,3);
-    } qr/add_n_to, expected 2 args but got 3/;
+    } qr/add_n_to__curried, expected 2 args but got 3/;
